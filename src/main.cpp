@@ -179,7 +179,7 @@ void handleRoot() {
                                   String(message).substring(0, message.length() - endSpacing.length()) +
                                   String("' /> <label for='scroll'>Scroll:</label> <input name='scroll' id='scroll' type='checkbox' ") +
                                   String(scroll ? "checked" : "") +
-                                  String("/> <br><label for='speed'>Speed:</label> <input name='speed' type='number' id='speed' value='") +
+                                  String("/> <br><label for='speed'>Speed:</label> <input name='speed' type='number' id='speed' min=1 value='") +
                                   String(increaseDelay) +
                                   String("'/> <input name='submit' type='submit' /></form>")
     );
