@@ -16,13 +16,13 @@
 
 const char *ssid = STASSID;
 const char *password = STAPSK;
-float brightness = .5;
+float brightness = .25;
 String currentColorHex;
 uint32_t currentColor;
 String message;
 
-const int startingIndex = 8;
-const int displayWidth = 11;
+const int startingIndex = 3;
+const int displayWidth = 16;
 const int displayBuffer[7] = {5, 5, 5, 5, 5, 5, 5};
 
 const int characterSpacing = 2;
@@ -80,7 +80,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(150, PIN, NEO_GRB + NEO_KHZ800);
 
 int strToHex(const char str[]) {
 //    Serial.println("strToHex");
-    return (int) strtol(str, 0, 16);
+    return (int) strtol(str, nullptr, 16);
 }
 
 void colorWipe(uint32_t c, uint8_t wait) {
@@ -173,7 +173,13 @@ void handleRoot() {
     server.send(200, "text/html", String("<h1>Light Changer</h1>") +
                                   String("<form action='/' method='POST'><input name='color' type='color' value='") +
                                   String(currentColorHex) +
-                                  String("'/> <input name='text' type='text' placeholder='What to display' /> <input name='submit' type='submit' /></form>"));
+                                  String("'/> <input name='text' type='text' value='")+
+                                  String(message).substring(0,message.length()-3)+
+                                  String("' /> <label for='scroll'>Scroll:</label> <input name='scroll' id='scroll' type='checkbox' ")+
+                                  String(scroll ? "checked" : "")+
+                                  String(" /> <input name='submit' type='submit' /></form>")
+                                  );
+    scrollPosition = 0;
 }
 
 void postRoot() {
@@ -185,7 +191,9 @@ void postRoot() {
     int g = (int) strToHex(server.arg("color").substring(3, 5).c_str());
     int b = (int) strToHex(server.arg("color").substring(5).c_str());
     currentColor = strip.Color(r, g, b);
-    message = server.arg("text");
+    message = server.arg("text") + String("   ");
+    Serial.println(server.arg("scroll"));
+    scroll = server.arg("scroll") == "on";
 //    Serial.print("Message: ");
 //    Serial.println(message);
     handleRoot();
@@ -212,7 +220,7 @@ void setup(void) {
 //    Serial.println("setup");
     currentColorHex = "#ffffff";
     currentColor = strip.Color(255, 255, 255);
-    message = "test";
+    message = "test   ";
     strip.begin();
     strip.setBrightness(brightness * 255);
     strip.fill(strip.Color(0, 0, 0));
