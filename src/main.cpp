@@ -5,6 +5,7 @@
 //#include <helpers.h>
 #include <string>
 #include <creds.h>
+
 #ifdef __AVR__
 #include <avr/power.h>
 #endif
@@ -26,6 +27,7 @@ const int displayWidth = 16;
 const int displayBuffer[7] = {5, 5, 5, 5, 5, 5, 5};
 
 const int characterSpacing = 2;
+const String endSpacing = "  ";
 boolean scroll = true;
 int scrollPosition = 0;
 long long lastIncrease = 500;
@@ -106,7 +108,7 @@ int letterIndex(char letter) {
 void updateDisplay() {
 //    Serial.println("updateDisplay");
     strip.clear();
-
+//    Serial.println(scrollPosition);
     if (message.length() == 0) {
 //        Serial.println("emptyMessage");
         strip.show();
@@ -171,14 +173,16 @@ void updateDisplay() {
 void handleRoot() {
 //    Serial.println("handleRoot");
     server.send(200, "text/html", String("<h1>Light Changer</h1>") +
-                                  String("<form action='/' method='POST'><input name='color' type='color' value='") +
+                                  String("<form action='/' method='POST'><label for='color'>Color: </label><input name='color' type='color' id='color' value='") +
                                   String(currentColorHex) +
-                                  String("'/> <input name='text' type='text' value='")+
-                                  String(message).substring(0,message.length()-3)+
-                                  String("' /> <label for='scroll'>Scroll:</label> <input name='scroll' id='scroll' type='checkbox' ")+
-                                  String(scroll ? "checked" : "")+
-                                  String(" /> <input name='submit' type='submit' /></form>")
-                                  );
+                                  String("'/><br> <label for='scroll'>Message:</label> <input name='message' type='text' id='message' value='") +
+                                  String(message).substring(0, message.length() - endSpacing.length()) +
+                                  String("' /> <label for='scroll'>Scroll:</label> <input name='scroll' id='scroll' type='checkbox' ") +
+                                  String(scroll ? "checked" : "") +
+                                  String("/> <br><label for='speed'>Speed:</label> <input name='speed' type='number' id='speed' value='") +
+                                  String(increaseDelay) +
+                                  String("'/> <input name='submit' type='submit' /></form>")
+    );
     scrollPosition = 0;
 }
 
@@ -191,9 +195,10 @@ void postRoot() {
     int g = (int) strToHex(server.arg("color").substring(3, 5).c_str());
     int b = (int) strToHex(server.arg("color").substring(5).c_str());
     currentColor = strip.Color(r, g, b);
-    message = server.arg("text") + String("   ");
+    message = server.arg("message") + endSpacing;
     Serial.println(server.arg("scroll"));
     scroll = server.arg("scroll") == "on";
+    increaseDelay = server.arg("speed").toInt();
 //    Serial.print("Message: ");
 //    Serial.println(message);
     handleRoot();
@@ -220,7 +225,7 @@ void setup(void) {
 //    Serial.println("setup");
     currentColorHex = "#ffffff";
     currentColor = strip.Color(255, 255, 255);
-    message = "test   ";
+    message = "test" + endSpacing;;
     strip.begin();
     strip.setBrightness(brightness * 255);
     strip.fill(strip.Color(0, 0, 0));
