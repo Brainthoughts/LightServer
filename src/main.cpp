@@ -185,7 +185,11 @@ void handleRoot() {
     );
     scrollPosition = 0;
 }
-
+void whiteout() {
+    handleRoot();
+    scroll = false;
+    colorWipe(strip.Color(255,255,255), 1);
+}
 void postRoot() {
 //    Serial.println("postRoot");
 //    Serial.print("Color: ");
@@ -202,6 +206,7 @@ void postRoot() {
 //    Serial.print("Message: ");
 //    Serial.println(message);
     handleRoot();
+    updateDisplay();
     Serial.println(currentColor);
 }
 
@@ -254,7 +259,7 @@ void setup(void) {
 
     server.on("/", HTTP_GET, handleRoot);
     server.on("/", HTTP_POST, postRoot);
-
+    server.on("/white", HTTP_GET, whiteout);
     server.onNotFound(handleNotFound);
 
     server.begin();
@@ -265,5 +270,8 @@ void loop(void) {
 //    Serial.println("loop");
     server.handleClient();
     MDNS.update();
-    updateDisplay();
+    if (scroll){
+        updateDisplay();
+    }
+
 }
