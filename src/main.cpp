@@ -179,9 +179,9 @@ void handleRoot() {
                                   String(message).substring(0, message.length() - endSpacing.length()) +
                                   String("' /> <label for='scroll'>Scroll:</label> <input name='scroll' id='scroll' type='checkbox' ") +
                                   String(scroll ? "checked" : "") +
-                                  String("/> <br><label for='speed'>Speed:</label> <input name='speed' type='number' id='speed' min=1 value='") +
-                                  String(increaseDelay) +
-                                  String("'/> <input name='submit' type='submit' /></form>")
+                                  String("/> <br><label for='brightness'>Brightness:</label> <input name='brightness' type='text' id='brightness' style='width: 3em' value='") +
+                                  String(brightness) +
+                                  String("'/> <br> <input name='submit' type='submit' /></form>")
     );
     scrollPosition = 0;
 }
@@ -202,7 +202,8 @@ void postRoot() {
     message = server.arg("message") + endSpacing;
     Serial.println(server.arg("scroll"));
     scroll = server.arg("scroll") == "on";
-    increaseDelay = server.arg("speed").toInt();
+    brightness = server.arg("brightness").toFloat();
+    strip.setBrightness(brightness * 255);
 //    Serial.print("Message: ");
 //    Serial.println(message);
     handleRoot();
